@@ -1,4 +1,4 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -55,8 +55,11 @@ public class ShowMetaCommand extends ArgsOnlyCommand {
 
     String[] args = options.getArgs();
     String input = args[0];
-    
+
     Configuration conf = new Configuration();
+    //conf.setBoolean("parquet.strings.signed-min-max.enabled", true);
+    conf.set("parquet.strings.signed-min-max.enabled", "true");
+
     Path inputPath = new Path(input);
     FileStatus inputFileStatus = inputPath.getFileSystem(conf).getFileStatus(inputPath);
     List<Footer> footers = ParquetFileReader.readFooters(conf, inputFileStatus, false);
@@ -66,6 +69,8 @@ public class ShowMetaCommand extends ArgsOnlyCommand {
                                              .withWhitespaceHandler(WhiteSpaceHandler.COLLAPSE_WHITESPACE)
                                              .withColumnPadding(1)
                                              .build();
+
+    out.format("patch: FCT parquet.strings.signed-min-max.enabled=true%n");
 
     for(Footer f: footers) {
       out.format("file: %s%n" , f.getFile());

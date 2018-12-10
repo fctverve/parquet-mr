@@ -1,4 +1,4 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -68,6 +68,8 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
 import org.apache.parquet.hadoop.example.GroupWriteSupport;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
+
+import org.apache.commons.io.FileUtils;
 
 public class TestParquetFileWriter {
 
@@ -500,6 +502,8 @@ public class TestParquetFileWriter {
     w.endBlock();
     w.end(new HashMap<String, String>());
 
+    java.nio.file.Files.copy(java.nio.file.Paths.get(testFile.toURI()), java.nio.file.Paths.get("/tmp/testWriteReadStatistics.parquet"), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
     ParquetMetadata readFooter = ParquetFileReader.readFooter(configuration, path);
     for (BlockMetaData block : readFooter.getBlocks()) {
       for (ColumnChunkMetaData col : block.getColumns()) {
@@ -594,13 +598,13 @@ public class TestParquetFileWriter {
     GroupWriteSupport.setSchema(schema, configuration);
 
     ParquetWriter<Group> writer = new ParquetWriter<Group>(path, configuration, new GroupWriteSupport());
-   
+
     Group r1 = new SimpleGroup(schema);
     writer.write(r1);
     writer.close();
-    
+
     ParquetMetadata readFooter = ParquetFileReader.readFooter(configuration, path);
-    
+
     // assert the statistics object is not empty
     assertTrue((readFooter.getBlocks().get(0).getColumns().get(0).getStatistics().isEmpty()) == false);
     // assert the number of nulls are correct for the first block
